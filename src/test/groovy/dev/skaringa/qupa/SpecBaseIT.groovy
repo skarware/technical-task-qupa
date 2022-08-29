@@ -12,6 +12,8 @@ import spock.lang.Specification
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 abstract class SpecBaseIT extends Specification {
+    protected static final def TICKER = "ticker"
+
     @Autowired
     protected MockMvc mockMvc
 }

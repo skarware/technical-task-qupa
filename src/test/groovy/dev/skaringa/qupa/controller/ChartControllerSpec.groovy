@@ -1,6 +1,7 @@
 package dev.skaringa.qupa.controller
 
 import dev.skaringa.qupa.SpecBaseIT
+import dev.skaringa.qupa.api.ErrorCode
 import dev.skaringa.qupa.model.CandlestickChartDataEntry
 import dev.skaringa.qupa.model.Chart
 import dev.skaringa.qupa.model.ChartType
@@ -82,5 +83,39 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.data[1].volume').value(toReturn.data[1].volume.toString()))
                 .andExpect(jsonPath('$.data[2].date').value(toReturn.data[2].date.toString()))
                 .andExpect(jsonPath('$.data[2].volume').value(toReturn.data[2].volume.toString()))
+    }
+
+    def "GET /api/chart/volume/{ticker} returns 400 when invalid request date range params given"() {
+        given: "invalid request"
+        def request = get("/api/chart/volume/{ticker}", TICKER)
+                .param("from", "01-01-2012")
+                .param("to", "01-01-2022")
+
+        when: "GET /api/chart/volume/{ticker} is called"
+        def response = mockMvc.perform(request)
+
+        then: "response status is 400"
+        response
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath('$.[0].code').value(ErrorCode.INVALID_ARGUMENT.name()))
+
+        and: "chart data client client stub is not called"
+        0 * chartDataClient.getVolumeChart(_)
+    }
+
+    def "GET /api/chart/volume/{ticker} returns 400 when invalid request without date range params given"() {
+        given: "invalid request"
+        def request = get("/api/chart/volume/{ticker}", TICKER)
+
+        when: "GET /api/chart/volume/{ticker} is called"
+        def response = mockMvc.perform(request)
+
+        then: "response status is 400"
+        response
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath('$.[0].code').value(ErrorCode.UNEXPECTED.name()))
+
+        and: "chart data client client stub is not called"
+        0 * chartDataClient.getVolumeChart(_)
     }
 }

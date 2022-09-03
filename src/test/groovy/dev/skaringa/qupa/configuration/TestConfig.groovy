@@ -1,7 +1,7 @@
 package dev.skaringa.qupa.configuration
 
 
-import dev.skaringa.qupa.service.ChartDataClient
+import dev.skaringa.qupa.service.StockMarketDataClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -15,7 +15,7 @@ class TestConfig {
 
     @Bean
     @Primary
-    ChartDataClient chartDataClientSpy() {
-        return DETACHED_MOCK_FACTORY.Mock(ChartDataClient)
+    StockMarketDataClient stockMarketDataClientMock() {
+        return DETACHED_MOCK_FACTORY.Mock(StockMarketDataClient)
     }
 }

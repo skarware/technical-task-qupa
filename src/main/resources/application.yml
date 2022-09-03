@@ -6,3 +6,7 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+com.nasdaq.api:
+  root-uri: ${COM_NASDAQ_API_ROOT_URI:https://data.nasdaq.com/api/v3}
+  key: ${COM_NASDAQ_API_KEY:}

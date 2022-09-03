@@ -6,7 +6,7 @@ import dev.skaringa.qupa.model.CandlestickChartDataEntry
 import dev.skaringa.qupa.model.Chart
 import dev.skaringa.qupa.model.ChartType
 import dev.skaringa.qupa.model.VolumeChartDataEntry
-import dev.skaringa.qupa.service.ChartDataClient
+import dev.skaringa.qupa.service.StockMarketDataClient
 import org.springframework.beans.factory.annotation.Autowired
 
 import java.time.LocalDate
@@ -18,17 +18,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ChartControllerSpec extends SpecBaseIT {
     @Autowired
-    private ChartDataClient chartDataClient
+    private StockMarketDataClient stockMarketDataClient
 
     def "GET /api/chart/candlestick/{ticker} returns candlestick chart"() {
         given: "date range"
         def from = LocalDate.of(2012, 1, 1)
         def to = LocalDate.of(2022, 1, 1)
 
-        and: "stub returns candlestick chart"
+        and: "stub returns stock market data"
+//        FIXME: should return Dataset dto
         def entry = new CandlestickChartDataEntry(LocalDate.now(), new BigDecimal("123.456"), new BigDecimal("123.456"), new BigDecimal("123.456"), new BigDecimal("123.456"))
         def toReturn = new Chart<>(TICKER, from, to, ChartType.CANDLESTICK, [entry])
-        1 * chartDataClient.getCandlestickChart(TICKER, from, to) >> toReturn
+        1 * stockMarketDataClient.getStockData(TICKER, from, to) >> toReturn
 
         when: "GET /api/chart/candlestick/{ticker} is called"
         def response = mockMvc.perform(
@@ -56,12 +57,13 @@ class ChartControllerSpec extends SpecBaseIT {
         def from = LocalDate.of(2012, 1, 1)
         def to = LocalDate.of(2022, 1, 1)
 
-        and: "stub returns volume chart"
+        and: "stub returns stock market data"
+        //        FIXME: should return Dataset dto
         def entry1 = new VolumeChartDataEntry(LocalDate.now(), 123)
         def entry2 = new VolumeChartDataEntry(LocalDate.now(), 456)
         def entry3 = new VolumeChartDataEntry(LocalDate.now(), 789)
         def toReturn = new Chart<>(TICKER, from, to, ChartType.VOLUME, [entry1, entry2, entry3])
-        1 * chartDataClient.getVolumeChart(TICKER, from, to) >> toReturn
+        1 * stockMarketDataClient.getStockData(TICKER, from, to) >> toReturn
 
         when: "GET /api/chart/volume/{ticker} is called"
         def response = mockMvc.perform(
@@ -99,8 +101,8 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath('$.[0].code').value(ErrorCode.INVALID_ARGUMENT.name()))
 
-        and: "chart data client client stub is not called"
-        0 * chartDataClient.getVolumeChart(_)
+        and: "stock market data client stub is not called"
+        0 * stockMarketDataClient.getStockData(_)
     }
 
     def "GET /api/chart/volume/{ticker} returns 400 when invalid request without date range params given"() {
@@ -115,7 +117,7 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath('$.[0].code').value(ErrorCode.UNEXPECTED.name()))
 
-        and: "chart data client client stub is not called"
-        0 * chartDataClient.getVolumeChart(_)
+        and: "stock market data client stub is not called"
+        0 * stockMarketDataClient.getStockData(_)
     }
 }

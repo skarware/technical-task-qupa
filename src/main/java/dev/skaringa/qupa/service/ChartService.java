@@ -1,6 +1,8 @@
 package dev.skaringa.qupa.service;
 
+import dev.skaringa.qupa.api.nasdaq.dto.Response;
 import dev.skaringa.qupa.factory.CandlestickChartFactory;
+import dev.skaringa.qupa.factory.VolumeChartFactory;
 import dev.skaringa.qupa.model.Chart;
 import dev.skaringa.qupa.model.ChartDataEntry;
 import dev.skaringa.qupa.model.ChartRequest;
@@ -14,24 +16,23 @@ import java.time.LocalDate;
 @Service
 @RequiredArgsConstructor
 public class ChartService {
-    private final ChartDataClient chartDataClient;
+    private final StockMarketDataClient stockMarketDataClient;
     private final CandlestickChartFactory candlestickChartFactory;
+    private final VolumeChartFactory volumeChartFactory;
 
     public Chart<ChartDataEntry> getCandlestickChart(ChartRequest request) {
-        log.info("Got getCandlestickChart request: {}", request);
         String ticker = request.getTicker();
         LocalDate from = request.getFrom();
         LocalDate to = request.getTo();
-        Object candlestickChart = chartDataClient.getCandlestickChart(ticker, from, to);
-        return candlestickChartFactory.toModel(candlestickChart);
+        Response.Dataset dataset = stockMarketDataClient.getStockData(ticker, from, to);
+        return candlestickChartFactory.toModel(dataset);
     }
 
     public Chart<ChartDataEntry> getVolumeChart(ChartRequest request) {
-        log.info("Got getVolumeChart request: {}", request);
         String ticker = request.getTicker();
         LocalDate from = request.getFrom();
         LocalDate to = request.getTo();
-        Object candlestickChart = chartDataClient.getVolumeChart(ticker, from, to);
-        return candlestickChartFactory.toModel(candlestickChart);
+        Response.Dataset dataset = stockMarketDataClient.getStockData(ticker, from, to);
+        return volumeChartFactory.toModel(dataset);
     }
 }

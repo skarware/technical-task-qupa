@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Value
-@ApiModel("Candlestick Chart Data Entry")
-public class CandlestickChartDataEntry implements ChartDataEntry {
+@ApiModel("Daily Candlestick Chart Data Entry")
+public class DailyCandlestickChartDataEntry implements ChartDataEntry {
     @NonNull
     @ApiModelProperty(value = "Date", required = true, example = "2022-01-01")
     LocalDate date;

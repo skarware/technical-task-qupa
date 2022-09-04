@@ -21,13 +21,13 @@ public class ChartService {
         String ticker = request.getTicker();
         LocalDate from = request.getFrom();
         LocalDate to = request.getTo();
-        return chartFactory.toCandlestickChartModel(stockMarketDataClient.getStockData(ticker, from, to));
+        return chartFactory.toDailyCandlestickChartModel(stockMarketDataClient.getStockData(ticker, from, to));
     }
 
     public Chart<ChartDataEntry> getVolumeChart(ChartRequest request) {
         String ticker = request.getTicker();
         LocalDate from = request.getFrom();
         LocalDate to = request.getTo();
-        return chartFactory.toVolumeChartModel(stockMarketDataClient.getStockData(ticker, from, to));
+        return chartFactory.toDailyVolumeChartModel(stockMarketDataClient.getStockData(ticker, from, to));
     }
 }

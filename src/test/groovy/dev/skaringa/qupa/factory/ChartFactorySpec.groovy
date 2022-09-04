@@ -4,14 +4,14 @@ import dev.skaringa.qupa.SpecBase
 import dev.skaringa.qupa.model.ChartType
 
 class ChartFactorySpec extends SpecBase {
-    private def factory = new ChartFactory(new CandlestickChartDataEntryFactory(), new VolumeChartDataEntryFactory())
+    private def factory = new ChartFactory(new DailyCandlestickChartDataEntryFactory(), new DailySingleValueChartDataEntryFactory())
 
-    def "creates candlestick chart model correctly"() {
+    def "creates daily candlestick chart model correctly"() {
         given: "valid dto"
         def dto = nasdaqDataset()
 
         when: "toCandlestickChartModel is called"
-        def model = factory.toCandlestickChartModel(dto)
+        def model = factory.toDailyCandlestickChartModel(dto)
 
         then: "model has correct values"
         model.ticker == dto.datasetCode
@@ -26,7 +26,7 @@ class ChartFactorySpec extends SpecBase {
         def dto = nasdaqDataset()
 
         when: "toVolumeChartModel is called"
-        def model = factory.toVolumeChartModel(dto)
+        def model = factory.toDailyVolumeChartModel(dto)
 
         then: "model has correct values"
         model.ticker == dto.datasetCode

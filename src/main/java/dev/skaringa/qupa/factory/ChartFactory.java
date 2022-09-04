@@ -13,14 +13,14 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class ChartFactory {
-    private final CandlestickChartDataEntryFactory candlestickChartDataEntryFactory;
-    private final VolumeChartDataEntryFactory volumeChartDataEntryFactory;
+    private final DailyCandlestickChartDataEntryFactory dailyCandlestickChartDataEntryFactory;
+    private final DailySingleValueChartDataEntryFactory dailySingleValueChartDataEntryFactory;
 
-    public Chart<ChartDataEntry> toCandlestickChartModel(Response.Dataset source) {
+    public Chart<ChartDataEntry> toDailyCandlestickChartModel(Response.Dataset source) {
         return toModel(source, ChartType.CANDLESTICK);
     }
 
-    public Chart<ChartDataEntry> toVolumeChartModel(Response.Dataset source) {
+    public Chart<ChartDataEntry> toDailyVolumeChartModel(Response.Dataset source) {
         return toModel(source, ChartType.VOLUME);
     }
 
@@ -37,9 +37,9 @@ public class ChartFactory {
     private List<ChartDataEntry> toChartDataEntryModels(List<Response.Dataset.DataEntry> source, ChartType chartType) {
         Assert.notNull(source, "Chart data entry 'source' must not be null");
         if (chartType == ChartType.CANDLESTICK) {
-            return candlestickChartDataEntryFactory.toModels(source);
+            return dailyCandlestickChartDataEntryFactory.toModels(source);
         } else if (chartType == ChartType.VOLUME) {
-            return volumeChartDataEntryFactory.toModels(source);
+            return dailySingleValueChartDataEntryFactory.toModels(source);
         }
 
         throw new IllegalArgumentException("Unexpected type of chart data: " + chartType);

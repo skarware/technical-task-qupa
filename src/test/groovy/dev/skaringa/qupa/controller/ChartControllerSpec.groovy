@@ -71,11 +71,11 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.type').value(ChartType.VOLUME.name()))
                 .andExpect(jsonPath('$.data', hasSize(toReturn.data.size())))
                 .andExpect(jsonPath('$.data[0].date').value(toReturn.data[0].date.toString()))
-                .andExpect(jsonPath('$.data[0].volume').value(toReturn.data[0].volume.toString()))
+                .andExpect(jsonPath('$.data[0].value').value(toReturn.data[0].volume.toString()))
                 .andExpect(jsonPath('$.data[1].date').value(toReturn.data[1].date.toString()))
-                .andExpect(jsonPath('$.data[1].volume').value(toReturn.data[1].volume.toString()))
+                .andExpect(jsonPath('$.data[1].value').value(toReturn.data[1].volume.toString()))
                 .andExpect(jsonPath('$.data[2].date').value(toReturn.data[2].date.toString()))
-                .andExpect(jsonPath('$.data[2].volume').value(toReturn.data[2].volume.toString()))
+                .andExpect(jsonPath('$.data[2].value').value(toReturn.data[2].volume.toString()))
     }
 
     def "GET /api/chart/volume/{ticker} returns 400 when invalid request date range params given"() {

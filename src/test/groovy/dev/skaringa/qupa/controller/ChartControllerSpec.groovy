@@ -2,10 +2,7 @@ package dev.skaringa.qupa.controller
 
 import dev.skaringa.qupa.SpecBaseIT
 import dev.skaringa.qupa.api.ErrorCode
-import dev.skaringa.qupa.model.CandlestickChartDataEntry
-import dev.skaringa.qupa.model.Chart
 import dev.skaringa.qupa.model.ChartType
-import dev.skaringa.qupa.model.VolumeChartDataEntry
 import dev.skaringa.qupa.service.StockMarketDataClient
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -26,9 +23,7 @@ class ChartControllerSpec extends SpecBaseIT {
         def to = LocalDate.of(2022, 1, 1)
 
         and: "stub returns stock market data"
-//        FIXME: should return Dataset dto
-        def entry = new CandlestickChartDataEntry(LocalDate.now(), new BigDecimal("123.456"), new BigDecimal("123.456"), new BigDecimal("123.456"), new BigDecimal("123.456"))
-        def toReturn = new Chart<>(TICKER, from, to, ChartType.CANDLESTICK, [entry])
+        def toReturn = nasdaqDataset()
         1 * stockMarketDataClient.getStockData(TICKER, from, to) >> toReturn
 
         when: "GET /api/chart/candlestick/{ticker} is called"
@@ -40,10 +35,10 @@ class ChartControllerSpec extends SpecBaseIT {
         then: "correct result is returned"
         response
                 .andExpect(status().isOk())
-                .andExpect(jsonPath('$.ticker').value(toReturn.ticker.toString()))
-                .andExpect(jsonPath('$.from').value(toReturn.from.toString()))
-                .andExpect(jsonPath('$.to').value(toReturn.to.toString()))
-                .andExpect(jsonPath('$.type').value(toReturn.type.toString()))
+                .andExpect(jsonPath('$.ticker').value(toReturn.datasetCode.toString()))
+                .andExpect(jsonPath('$.from').value(toReturn.startDate.toString()))
+                .andExpect(jsonPath('$.to').value(toReturn.endDate.toString()))
+                .andExpect(jsonPath('$.type').value(ChartType.CANDLESTICK.name()))
                 .andExpect(jsonPath('$.data', hasSize(toReturn.data.size())))
                 .andExpect(jsonPath('$.data[0].date').value(toReturn.data[0].date.toString()))
                 .andExpect(jsonPath('$.data[0].open').value(toReturn.data[0].open.toString()))
@@ -58,11 +53,7 @@ class ChartControllerSpec extends SpecBaseIT {
         def to = LocalDate.of(2022, 1, 1)
 
         and: "stub returns stock market data"
-        //        FIXME: should return Dataset dto
-        def entry1 = new VolumeChartDataEntry(LocalDate.now(), 123)
-        def entry2 = new VolumeChartDataEntry(LocalDate.now(), 456)
-        def entry3 = new VolumeChartDataEntry(LocalDate.now(), 789)
-        def toReturn = new Chart<>(TICKER, from, to, ChartType.VOLUME, [entry1, entry2, entry3])
+        def toReturn = nasdaqDataset()
         1 * stockMarketDataClient.getStockData(TICKER, from, to) >> toReturn
 
         when: "GET /api/chart/volume/{ticker} is called"
@@ -74,10 +65,10 @@ class ChartControllerSpec extends SpecBaseIT {
         then: "correct result is returned"
         response
                 .andExpect(status().isOk())
-                .andExpect(jsonPath('$.ticker').value(toReturn.ticker.toString()))
-                .andExpect(jsonPath('$.from').value(toReturn.from.toString()))
-                .andExpect(jsonPath('$.to').value(toReturn.to.toString()))
-                .andExpect(jsonPath('$.type').value(toReturn.type.toString()))
+                .andExpect(jsonPath('$.ticker').value(toReturn.datasetCode.toString()))
+                .andExpect(jsonPath('$.from').value(toReturn.startDate.toString()))
+                .andExpect(jsonPath('$.to').value(toReturn.endDate.toString()))
+                .andExpect(jsonPath('$.type').value(ChartType.VOLUME.name()))
                 .andExpect(jsonPath('$.data', hasSize(toReturn.data.size())))
                 .andExpect(jsonPath('$.data[0].date').value(toReturn.data[0].date.toString()))
                 .andExpect(jsonPath('$.data[0].volume').value(toReturn.data[0].volume.toString()))

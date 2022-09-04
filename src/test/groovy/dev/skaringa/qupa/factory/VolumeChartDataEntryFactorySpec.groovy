@@ -1,6 +1,7 @@
 package dev.skaringa.qupa.factory
 
-import dev.skaringa.qupa.api.nasdaq.dto.Response
+
+import dev.skaringa.qupa.provider.NasdaqDatasetDataEntryDtoProvider
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -10,8 +11,8 @@ class VolumeChartDataEntryFactorySpec extends Specification {
 
     def "creates volume chart data entry models correctly"() {
         given: "valid dtos"
-        def entryDto1 = new Response.Dataset.DataEntry(LocalDate.now(), 0.1, 0.2, 0.3, 0.4, 5, 6, 7, 0.8, 0.9, 0.11, 0.12, 13)
-        def entryDto2 = new Response.Dataset.DataEntry(LocalDate.now().plusDays(1), 1.1, 1.2, 1.3, 1.4, 15, 16, 17, 1.8, 1.9, 1.11, 1.12, 113)
+        def entryDto1 = NasdaqDatasetDataEntryDtoProvider.dto([date: LocalDate.of(2022, 3, 4)])
+        def entryDto2 = NasdaqDatasetDataEntryDtoProvider.dto([date: LocalDate.of(2023, 4, 5)])
 
         when: "toModels is called"
         def models = factory.toModels([entryDto1, entryDto2])

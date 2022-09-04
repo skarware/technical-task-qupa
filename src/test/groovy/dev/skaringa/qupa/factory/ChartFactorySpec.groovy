@@ -1,19 +1,14 @@
 package dev.skaringa.qupa.factory
 
-import dev.skaringa.qupa.api.nasdaq.dto.Response
+import dev.skaringa.qupa.SpecBase
 import dev.skaringa.qupa.model.ChartType
-import spock.lang.Specification
 
-import java.time.LocalDate
-import java.time.ZonedDateTime
-
-class ChartFactorySpec extends Specification {
+class ChartFactorySpec extends SpecBase {
     private def factory = new ChartFactory(new CandlestickChartDataEntryFactory(), new VolumeChartDataEntryFactory())
 
     def "creates candlestick chart model correctly"() {
         given: "valid dto"
-        def dataEntries = [new Response.Dataset.DataEntry(LocalDate.now(), 0.1, 0.2, 0.3, 0.4, 5, 6, 7, 0.8, 0.9, 0.11, 0.12, 13)]
-        def dto = new Response.Dataset(1, "datasetCode", ZonedDateTime.now(), LocalDate.now(), LocalDate.now(), LocalDate.now(), LocalDate.now(), dataEntries)
+        def dto = nasdaqDataset()
 
         when: "toCandlestickChartModel is called"
         def model = factory.toCandlestickChartModel(dto)
@@ -28,8 +23,7 @@ class ChartFactorySpec extends Specification {
 
     def "creates volume chart model correctly"() {
         given: "valid dto"
-        def dataEntries = [new Response.Dataset.DataEntry(LocalDate.now(), 0.1, 0.2, 0.3, 0.4, 5, 6, 7, 0.8, 0.9, 0.11, 0.12, 13)]
-        def dto = new Response.Dataset(1, "datasetCode", ZonedDateTime.now(), LocalDate.now(), LocalDate.now(), LocalDate.now(), LocalDate.now(), dataEntries)
+        def dto = nasdaqDataset()
 
         when: "toVolumeChartModel is called"
         def model = factory.toVolumeChartModel(dto)

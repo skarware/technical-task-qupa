@@ -5,7 +5,7 @@ import dev.skaringa.qupa.model.StockDataset
 
 import java.time.LocalDate
 
-class StockDatasetDtoProvider {
+class StockDatasetProvider {
     private static final def SYMBOL = "symbol"
     private static final def FROM = LocalDate.of(2010, 1, 1)
     private static final def TO = LocalDate.of(2010, 1, 5)
@@ -14,8 +14,8 @@ class StockDatasetDtoProvider {
             from  : FROM,
             to    : TO]
 
-    static def dto(Map<String, Object> map = [:]) {
-        def props = SAMPLE + [data: [StockDatasetDataEntryDtoProvider.dto()]] + map
+    static def model(Map<String, Object> map = [:]) {
+        def props = SAMPLE + [data: [StockDatasetDataEntryProvider.model()]] + map
         return new StockDataset(
                 props.symbol as String,
                 props.from as LocalDate,

@@ -5,7 +5,7 @@ import dev.skaringa.qupa.model.StockDataset
 
 import java.time.LocalDate
 
-class StockDatasetDataEntryDtoProvider {
+class StockDatasetDataEntryProvider {
     private static final def DATE = LocalDate.of(2010, 1, 5)
     private static final def OPEN = new BigDecimal("214.6")
     private static final def HIGH = new BigDecimal("215.59")
@@ -20,7 +20,7 @@ class StockDatasetDataEntryDtoProvider {
             close : CLOSE,
             volume: VOLUME]
 
-    static def dto(Map<String, Object> map = [:]) {
+    static def model(Map<String, Object> map = [:]) {
         def props = SAMPLE + map
         return new StockDataset.DataEntry(
                 props.date as LocalDate,

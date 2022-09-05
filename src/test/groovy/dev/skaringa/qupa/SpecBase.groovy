@@ -2,8 +2,8 @@ package dev.skaringa.qupa
 
 import dev.skaringa.qupa.provider.NasdaqDatasetDataEntryDtoProvider
 import dev.skaringa.qupa.provider.NasdaqDatasetDtoProvider
-import dev.skaringa.qupa.provider.StockDatasetDataEntryDtoProvider
-import dev.skaringa.qupa.provider.StockDatasetDtoProvider
+import dev.skaringa.qupa.provider.StockDatasetDataEntryProvider
+import dev.skaringa.qupa.provider.StockDatasetProvider
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -34,8 +34,7 @@ abstract class SpecBase extends Specification {
     }
 
     protected static def stockDataset() {
-        return StockDatasetDtoProvider.dto([
-                id  : randomId(),
+        return StockDatasetProvider.model([
                 from: LocalDate.of(2022, 1, 1),
                 to  : LocalDate.of(2022, 1, 3),
                 data: stockDatasetDataEntries(),
@@ -43,9 +42,9 @@ abstract class SpecBase extends Specification {
     }
 
     protected static def stockDatasetDataEntries() {
-        def entry1 = StockDatasetDataEntryDtoProvider.dto([date: LocalDate.of(2022, 1, 1)])
-        def entry2 = StockDatasetDataEntryDtoProvider.dto([date: LocalDate.of(2022, 1, 2)])
-        def entry3 = StockDatasetDataEntryDtoProvider.dto([date: LocalDate.of(2022, 1, 3)])
+        def entry1 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 1)])
+        def entry2 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 2)])
+        def entry3 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 3)])
         return [entry1, entry2, entry3]
     }
 }

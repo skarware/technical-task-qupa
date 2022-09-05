@@ -5,5 +5,6 @@ import lombok.Getter;
 @Getter
 public enum ChartType {
     CANDLESTICK(),
-    VOLUME()
+    VOLUME(),
+    SMA()
 }

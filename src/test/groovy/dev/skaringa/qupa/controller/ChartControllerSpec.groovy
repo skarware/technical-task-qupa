@@ -3,6 +3,7 @@ package dev.skaringa.qupa.controller
 import dev.skaringa.qupa.SpecBaseIT
 import dev.skaringa.qupa.api.ErrorCode
 import dev.skaringa.qupa.model.ChartType
+import dev.skaringa.qupa.provider.NasdaqDatasetDataEntryDtoProvider
 import dev.skaringa.qupa.service.StockMarketDataClient
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -76,6 +77,41 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.data[1].value').value(toReturn.data[1].volume.toString()))
                 .andExpect(jsonPath('$.data[2].date').value(toReturn.data[2].date.toString()))
                 .andExpect(jsonPath('$.data[2].value').value(toReturn.data[2].volume.toString()))
+    }
+
+    def "GET /api/chart/sma/{ticker} returns SMA chart"() {
+        given: "period and date range"
+        def period = 1
+        def from = LocalDate.of(2012, 1, 1)
+        def to = LocalDate.of(2022, 1, 1)
+
+        and: "stub returns stock market data"
+        def entry1 = NasdaqDatasetDataEntryDtoProvider.dto([date: from.minusDays(1), close: 1])
+        def entry2 = NasdaqDatasetDataEntryDtoProvider.dto([date: from, close: 2])
+        def entry3 = NasdaqDatasetDataEntryDtoProvider.dto([date: from.plusDays(1), close: 3])
+        def toReturn = nasdaqDataset([startDate: from, endDate: to, data: [entry1, entry2, entry3]])
+        def fromWithLossMarketCloseDaysOffset = from.minusDays(period * 2L)
+        1 * stockMarketDataClient.getStockData(TICKER, fromWithLossMarketCloseDaysOffset, to) >> toReturn
+
+        when: "GET /api/chart/sma/{ticker} is called"
+        def response = mockMvc.perform(
+                get("/api/chart/sma/{ticker}", TICKER)
+                        .param("from", from.toString())
+                        .param("to", to.toString())
+                        .param("period", period.toString()))
+
+        then: "correct result is returned"
+        response
+                .andExpect(status().isOk())
+                .andExpect(jsonPath('$.ticker').value(toReturn.datasetCode.toString()))
+                .andExpect(jsonPath('$.from').value(toReturn.startDate.toString()))
+                .andExpect(jsonPath('$.to').value(toReturn.endDate.toString()))
+                .andExpect(jsonPath('$.type').value(ChartType.SMA.name()))
+                .andExpect(jsonPath('$.data', hasSize(2)))
+                .andExpect(jsonPath('$.data[0].date').value(toReturn.data[1].date.toString()))
+                .andExpect(jsonPath('$.data[0].value').value(1))
+                .andExpect(jsonPath('$.data[1].date').value(toReturn.data[2].date.toString()))
+                .andExpect(jsonPath('$.data[1].value').value(2))
     }
 
     def "GET /api/chart/volume/{ticker} returns 400 when invalid request date range params given"() {

@@ -17,13 +17,13 @@ abstract class SpecBase extends Specification {
         return RANDOM.nextLong()
     }
 
-    protected static def nasdaqDataset() {
+    protected static def nasdaqDataset(Map<String, Object> props = [:]) {
         return NasdaqDatasetDtoProvider.dto([
                 id       : randomId(),
                 startDate: LocalDate.of(2022, 1, 1),
                 endDate  : LocalDate.of(2022, 1, 3),
                 data     : nasdaqDatasetDataEntries(),
-        ])
+        ] + props)
     }
 
     protected static def nasdaqDatasetDataEntries() {
@@ -33,12 +33,12 @@ abstract class SpecBase extends Specification {
         return [entry1, entry2, entry3]
     }
 
-    protected static def stockDataset() {
+    protected static def stockDataset(Map<String, Object> props = [:]) {
         return StockDatasetProvider.model([
                 from: LocalDate.of(2022, 1, 1),
                 to  : LocalDate.of(2022, 1, 3),
                 data: stockDatasetDataEntries(),
-        ])
+        ] + props)
     }
 
     protected static def stockDatasetDataEntries() {

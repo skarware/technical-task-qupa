@@ -57,6 +57,34 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         ]
     }
 
+    def "returns correct SMA result for period of 2-day"() {
+        given: "from date and period"
+        def from = LocalDate.of(2022, 1, 1)
+        def period = 2
+
+        and: "stock dataset"
+        def entry1 = StockDatasetDataEntryProvider.model([date: from.minusDays(2), close: 1])
+        def entry2 = StockDatasetDataEntryProvider.model([date: from.minusDays(1), close: 2])
+        def entry3 = StockDatasetDataEntryProvider.model([date: from, close: 3])
+        def entry4 = StockDatasetDataEntryProvider.model([date: from.plusDays(1), close: 4])
+        def entry5 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 5])
+        def stockDataset = stockDataset([
+                from: from,
+                to  : from,
+                data: [entry1, entry2, entry3, entry4, entry5],
+        ])
+
+        when: "calculate is called"
+        def result = calculator.calculate(stockDataset, from, period)
+
+        then: "result is correct"
+        result == [
+                DailySingleValueChartDataEntryProvider.model([date: from, value: 1.5]),
+                DailySingleValueChartDataEntryProvider.model([date: from.plusDays(1), value: 2.5]),
+                DailySingleValueChartDataEntryProvider.model([date: from.plusDays(2), value: 3.5]),
+        ]
+    }
+
     def "returns correct SMA result for period of 3-day"() {
         given: "from date and period"
         def from = LocalDate.of(2022, 1, 1)
@@ -83,34 +111,6 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
                 DailySingleValueChartDataEntryProvider.model([date: from, value: 2]),
                 DailySingleValueChartDataEntryProvider.model([date: from.plusDays(1), value: 3]),
                 DailySingleValueChartDataEntryProvider.model([date: from.plusDays(2), value: 4]),
-        ]
-    }
-
-    def "returns correct SMA result for period of 2-day"() {
-        given: "from date and period"
-        def from = LocalDate.of(2022, 1, 1)
-        def period = 2
-
-        and: "stock dataset"
-        def entry1 = StockDatasetDataEntryProvider.model([date: from.minusDays(2), close: 1])
-        def entry2 = StockDatasetDataEntryProvider.model([date: from.minusDays(1), close: 2])
-        def entry3 = StockDatasetDataEntryProvider.model([date: from, close: 3])
-        def entry4 = StockDatasetDataEntryProvider.model([date: from.plusDays(1), close: 4])
-        def entry5 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 5])
-        def stockDataset = stockDataset([
-                from: from,
-                to  : from,
-                data: [entry1, entry2, entry3, entry4, entry5],
-        ])
-
-        when: "calculate is called"
-        def result = calculator.calculate(stockDataset, from, period)
-
-        then: "result is correct"
-        result == [
-                DailySingleValueChartDataEntryProvider.model([date: from, value: 1.5]),
-                DailySingleValueChartDataEntryProvider.model([date: from.plusDays(1), value: 2.5]),
-                DailySingleValueChartDataEntryProvider.model([date: from.plusDays(2), value: 3.5]),
         ]
     }
 
@@ -170,6 +170,35 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         result == [
                 DailySingleValueChartDataEntryProvider.model([date: from, value: 29.85]),
                 DailySingleValueChartDataEntryProvider.model([date: from.plusDays(1), value: 29.60]),
+        ]
+    }
+
+    def "returns correct SMA result when data entry dates are not consecutive"() {
+        given: "from date and period"
+        def from = LocalDate.of(2022, 1, 1)
+        def period = 3
+
+        and: "stock dataset"
+        def entry1 = StockDatasetDataEntryProvider.model([date: from.minusDays(6), close: 1])
+        def entry2 = StockDatasetDataEntryProvider.model([date: from.minusDays(4), close: 2])
+        def entry3 = StockDatasetDataEntryProvider.model([date: from.minusDays(2), close: 3])
+        def entry4 = StockDatasetDataEntryProvider.model([date: from, close: 4])
+        def entry5 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 5])
+        def entry6 = StockDatasetDataEntryProvider.model([date: from.plusDays(4), close: 6])
+        def stockDataset = stockDataset([
+                from: from,
+                to  : from,
+                data: [entry1, entry2, entry3, entry4, entry5, entry6],
+        ])
+
+        when: "calculate is called"
+        def result = calculator.calculate(stockDataset, from, period)
+
+        then: "result is correct"
+        result == [
+                DailySingleValueChartDataEntryProvider.model([date: from, value: 2]),
+                DailySingleValueChartDataEntryProvider.model([date: from.plusDays(2), value: 3]),
+                DailySingleValueChartDataEntryProvider.model([date: from.plusDays(4), value: 4]),
         ]
     }
 

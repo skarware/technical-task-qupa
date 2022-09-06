@@ -1,7 +1,7 @@
 package dev.skaringa.qupa.factory
 
 
-import dev.skaringa.qupa.provider.NasdaqDatasetDataEntryDtoProvider
+import dev.skaringa.qupa.provider.StockDatasetDataEntryProvider
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -10,26 +10,26 @@ class DailyDailyCandlestickChartDataEntryFactorySpec extends Specification {
     private def factory = new DailyCandlestickChartDataEntryFactory()
 
     def "creates daily candlestick chart data entry models correctly"() {
-        given: "valid dtos"
-        def entryDto1 = NasdaqDatasetDataEntryDtoProvider.dto([date: LocalDate.of(2022, 3, 4)])
-        def entryDto2 = NasdaqDatasetDataEntryDtoProvider.dto([date: LocalDate.of(2023, 4, 5)])
+        given: "stock dataset models"
+        def entry1 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 3, 4)])
+        def entry2 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2023, 4, 5)])
 
         when: "toModels is called"
-        def models = factory.toModels([entryDto1, entryDto2])
+        def result = factory.toModels([entry1, entry2])
 
-        then: "models have correct values"
-        models.size() == 2
-        def entryModel1 = models[0]
-        entryModel1.date == entryDto1.date
-        entryModel1.open == entryDto1.open
-        entryModel1.high == entryDto1.high
-        entryModel1.low == entryDto1.low
-        entryModel1.close == entryDto1.close
-        def entryModel2 = models[1]
-        entryModel2.date == entryDto2.date
-        entryModel2.open == entryDto2.open
-        entryModel2.high == entryDto2.high
-        entryModel2.low == entryDto2.low
-        entryModel2.close == entryDto2.close
+        then: "created chart entry models have correct values"
+        result.size() == 2
+        def resultEntry1 = result[0]
+        resultEntry1.date == entry1.date
+        resultEntry1.open == entry1.open
+        resultEntry1.high == entry1.high
+        resultEntry1.low == entry1.low
+        resultEntry1.close == entry1.close
+        def resultEntry2 = result[1]
+        resultEntry2.date == entry2.date
+        resultEntry2.open == entry2.open
+        resultEntry2.high == entry2.high
+        resultEntry2.low == entry2.low
+        resultEntry2.close == entry2.close
     }
 }

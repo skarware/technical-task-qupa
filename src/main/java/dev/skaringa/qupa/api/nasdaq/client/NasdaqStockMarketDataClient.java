@@ -31,9 +31,7 @@ public class NasdaqStockMarketDataClient implements StockMarketDataClient {
             throw SystemException.unexpected(message, cause);
         }
 
-        Response.Dataset dataset = result.get();
-        log.info(dataset);
-        return dataset;
+        return result.get();
     }
 
     private Response.Dataset getDataset(String ticker, LocalDate from, LocalDate to) {

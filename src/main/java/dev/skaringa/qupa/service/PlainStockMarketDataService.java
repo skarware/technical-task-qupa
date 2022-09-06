@@ -17,8 +17,8 @@ public class PlainStockMarketDataService implements StockMarketDataService {
     private final StockDatasetFactory stockDatasetFactory;
 
     @Override
-    public StockDataset getDataset(String symbol, LocalDate from, LocalDate to) {
-        Response.Dataset rawDataset = stockMarketDataClient.getStockData(symbol, from, to);
+    public StockDataset getDataset(String ticker, LocalDate from, LocalDate to) {
+        Response.Dataset rawDataset = stockMarketDataClient.getDataset(ticker, from, to);
         return stockDatasetFactory.toModel(rawDataset);
     }
 }

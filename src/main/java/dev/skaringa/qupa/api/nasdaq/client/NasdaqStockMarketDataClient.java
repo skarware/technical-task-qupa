@@ -22,8 +22,8 @@ public class NasdaqStockMarketDataClient implements StockMarketDataClient {
     private final RestTemplate restTemplate;
 
     @Override
-    public Response.Dataset getStockData(String ticker, LocalDate from, LocalDate to) {
-        Try<Response.Dataset> result = Try.of(() -> getDataset(ticker, from, to));
+    public Response.Dataset getDataset(String ticker, LocalDate from, LocalDate to) {
+        Try<Response.Dataset> result = Try.of(() -> get(ticker, from, to));
         if (result.isFailure()) {
             Throwable cause = result.getCause();
             String message = "Failed to get stock market data, due to: " + cause.getMessage();
@@ -34,7 +34,7 @@ public class NasdaqStockMarketDataClient implements StockMarketDataClient {
         return result.get();
     }
 
-    private Response.Dataset getDataset(String ticker, LocalDate from, LocalDate to) {
+    private Response.Dataset get(String ticker, LocalDate from, LocalDate to) {
         String uri = uri(ticker, from, to);
         ResponseEntity<Response> response = restTemplate.getForEntity(uri, Response.class);
         if (!response.getStatusCode().is2xxSuccessful()) {

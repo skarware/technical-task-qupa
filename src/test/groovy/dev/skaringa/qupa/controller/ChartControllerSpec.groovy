@@ -25,7 +25,7 @@ class ChartControllerSpec extends SpecBaseIT {
 
         and: "stub returns stock market data"
         def toReturn = nasdaqDataset()
-        1 * stockMarketDataClient.getStockData(TICKER, from, to) >> toReturn
+        1 * stockMarketDataClient.getDataset(TICKER, from, to) >> toReturn
 
         when: "GET /api/chart/candlestick/{ticker} is called"
         def response = mockMvc.perform(
@@ -55,7 +55,7 @@ class ChartControllerSpec extends SpecBaseIT {
 
         and: "stub returns stock market data"
         def toReturn = nasdaqDataset()
-        1 * stockMarketDataClient.getStockData(TICKER, from, to) >> toReturn
+        1 * stockMarketDataClient.getDataset(TICKER, from, to) >> toReturn
 
         when: "GET /api/chart/volume/{ticker} is called"
         def response = mockMvc.perform(
@@ -91,7 +91,7 @@ class ChartControllerSpec extends SpecBaseIT {
         def entry3 = NasdaqDatasetDataEntryDtoProvider.dto([date: from.plusDays(1), close: 3])
         def toReturn = nasdaqDataset([startDate: from, endDate: to, data: [entry1, entry2, entry3]])
         def fromWithLossMarketCloseDaysOffset = from.minusDays(period * 2L)
-        1 * stockMarketDataClient.getStockData(TICKER, fromWithLossMarketCloseDaysOffset, to) >> toReturn
+        1 * stockMarketDataClient.getDataset(TICKER, fromWithLossMarketCloseDaysOffset, to) >> toReturn
 
         when: "GET /api/chart/sma/{ticker} is called"
         def response = mockMvc.perform(
@@ -134,7 +134,7 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.[0].message').value("SMA period should be greater than 0 and less than 500"))
 
         and: "stock market data client stub is not called"
-        0 * stockMarketDataClient.getStockData(_)
+        0 * stockMarketDataClient.getDataset(_)
     }
 
     def "GET /api/chart/sma/{ticker} returns 400 when request param of period less than 0 given"() {
@@ -157,7 +157,7 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.[0].message').value("SMA period should be greater than 0 and less than 500"))
 
         and: "stock market data client stub is not called"
-        0 * stockMarketDataClient.getStockData(_)
+        0 * stockMarketDataClient.getDataset(_)
     }
 
     def "GET /api/chart/sma/{ticker} returns 400 when request param of period greater than 500 given"() {
@@ -180,7 +180,7 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.[0].message').value("SMA period should be greater than 0 and less than 500"))
 
         and: "stock market data client stub is not called"
-        0 * stockMarketDataClient.getStockData(_)
+        0 * stockMarketDataClient.getDataset(_)
     }
 
     def "GET /api/chart/volume/{ticker} returns 400 when invalid request date range params given"() {
@@ -198,7 +198,7 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.[0].code').value(ErrorCode.INVALID_ARGUMENT.name()))
 
         and: "stock market data client stub is not called"
-        0 * stockMarketDataClient.getStockData(_)
+        0 * stockMarketDataClient.getDataset(_)
     }
 
     def "GET /api/chart/volume/{ticker} returns 400 when invalid request without date range params given"() {
@@ -214,6 +214,6 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.[0].code').value(ErrorCode.UNEXPECTED.name()))
 
         and: "stock market data client stub is not called"
-        0 * stockMarketDataClient.getStockData(_)
+        0 * stockMarketDataClient.getDataset(_)
     }
 }

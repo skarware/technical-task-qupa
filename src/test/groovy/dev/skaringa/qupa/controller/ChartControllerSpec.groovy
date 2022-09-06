@@ -114,6 +114,75 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.data[1].value').value(2))
     }
 
+    def "GET /api/chart/sma/{ticker} returns 400 when request param of period of zero given"() {
+        given: "period and date range"
+        def period = 0
+        def from = LocalDate.of(2012, 1, 1)
+        def to = LocalDate.of(2022, 1, 1)
+
+        when: "GET /api/chart/sma/{ticker} is called"
+        def response = mockMvc.perform(
+                get("/api/chart/sma/{ticker}", TICKER)
+                        .param("from", from.toString())
+                        .param("to", to.toString())
+                        .param("period", period.toString()))
+
+        then: "response status is 400"
+        response
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath('$.[0].code').value(ErrorCode.ILLEGAL_ARGUMENT.name()))
+                .andExpect(jsonPath('$.[0].message').value("SMA period should be greater than 0 and less than 500"))
+
+        and: "stock market data client stub is not called"
+        0 * stockMarketDataClient.getStockData(_)
+    }
+
+    def "GET /api/chart/sma/{ticker} returns 400 when request param of period less than 0 given"() {
+        given: "period and date range"
+        def period = -1
+        def from = LocalDate.of(2012, 1, 1)
+        def to = LocalDate.of(2022, 1, 1)
+
+        when: "GET /api/chart/sma/{ticker} is called"
+        def response = mockMvc.perform(
+                get("/api/chart/sma/{ticker}", TICKER)
+                        .param("from", from.toString())
+                        .param("to", to.toString())
+                        .param("period", period.toString()))
+
+        then: "response status is 400"
+        response
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath('$.[0].code').value(ErrorCode.ILLEGAL_ARGUMENT.name()))
+                .andExpect(jsonPath('$.[0].message').value("SMA period should be greater than 0 and less than 500"))
+
+        and: "stock market data client stub is not called"
+        0 * stockMarketDataClient.getStockData(_)
+    }
+
+    def "GET /api/chart/sma/{ticker} returns 400 when request param of period greater than 500 given"() {
+        given: "period and date range"
+        def period = 501
+        def from = LocalDate.of(2012, 1, 1)
+        def to = LocalDate.of(2022, 1, 1)
+
+        when: "GET /api/chart/sma/{ticker} is called"
+        def response = mockMvc.perform(
+                get("/api/chart/sma/{ticker}", TICKER)
+                        .param("from", from.toString())
+                        .param("to", to.toString())
+                        .param("period", period.toString()))
+
+        then: "response status is 400"
+        response
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath('$.[0].code').value(ErrorCode.ILLEGAL_ARGUMENT.name()))
+                .andExpect(jsonPath('$.[0].message').value("SMA period should be greater than 0 and less than 500"))
+
+        and: "stock market data client stub is not called"
+        0 * stockMarketDataClient.getStockData(_)
+    }
+
     def "GET /api/chart/volume/{ticker} returns 400 when invalid request date range params given"() {
         given: "invalid request"
         def request = get("/api/chart/volume/{ticker}", TICKER)

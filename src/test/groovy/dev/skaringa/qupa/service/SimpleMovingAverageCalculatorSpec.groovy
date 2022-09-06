@@ -227,4 +227,54 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         ex.code == ErrorCode.UNEXPECTED
         ex.message == "Not enough stock data entries to calculate SMA"
     }
+
+    def "throws exception when given period is zero"() {
+        given: "from date and period"
+        def from = LocalDate.of(2022, 1, 1)
+        def period = 0
+
+        and: "stock dataset"
+        def entry1 = StockDatasetDataEntryProvider.model([date: from.minusDays(2), close: 1])
+        def entry2 = StockDatasetDataEntryProvider.model([date: from.minusDays(1), close: 2])
+        def entry3 = StockDatasetDataEntryProvider.model([date: from, close: 3.3])
+        def entry4 = StockDatasetDataEntryProvider.model([date: from.plusDays(1), close: 4])
+        def entry5 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 5])
+        def stockDataset = stockDataset([
+                from: from,
+                to  : from,
+                data: [entry1, entry2, entry3, entry4, entry5],
+        ])
+
+        when: "calculate is called"
+        calculator.calculate(stockDataset, from, period)
+
+        then: "Exception is thrown"
+        def ex = thrown(IllegalArgumentException)
+        ex.message == "SMA period value must be greater than zero"
+    }
+
+    def "throws exception when given period is less than zero"() {
+        given: "from date and period"
+        def from = LocalDate.of(2022, 1, 1)
+        def period = -1
+
+        and: "stock dataset"
+        def entry1 = StockDatasetDataEntryProvider.model([date: from.minusDays(2), close: 1])
+        def entry2 = StockDatasetDataEntryProvider.model([date: from.minusDays(1), close: 2])
+        def entry3 = StockDatasetDataEntryProvider.model([date: from, close: 3.3])
+        def entry4 = StockDatasetDataEntryProvider.model([date: from.plusDays(1), close: 4])
+        def entry5 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 5])
+        def stockDataset = stockDataset([
+                from: from,
+                to  : from,
+                data: [entry1, entry2, entry3, entry4, entry5],
+        ])
+
+        when: "calculate is called"
+        calculator.calculate(stockDataset, from, period)
+
+        then: "Exception is thrown"
+        def ex = thrown(IllegalArgumentException)
+        ex.message == "SMA period value must be greater than zero"
+    }
 }

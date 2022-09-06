@@ -7,6 +7,7 @@ import dev.skaringa.qupa.service.ChartService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -51,6 +52,7 @@ public class ChartController {
             @RequestParam(value = "to") LocalDate to,
             @ApiParam(value = "SMA period in Days", example = "5")
             @RequestParam(value = "period") int period) {
+        Assert.isTrue(period > 0 && period <= 500, "SMA period should be greater than 0 and less than 500");
         return chartService.getSMAChart(new ChartRequest(ticker, from, to), period);
     }
 }

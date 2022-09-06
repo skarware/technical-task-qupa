@@ -5,6 +5,7 @@ import dev.skaringa.qupa.model.ChartDataEntry;
 import dev.skaringa.qupa.model.DailySingleValueChartDataEntry;
 import dev.skaringa.qupa.model.StockDataset;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -19,6 +20,7 @@ import java.util.stream.Stream;
 @Component
 public class SimpleMovingAverageCalculator {
     public List<ChartDataEntry> calculate(StockDataset stockDataset, LocalDate from, int period) {
+        Assert.isTrue(period > 0, "SMA period value must be greater than zero");
         List<StockDataset.DataEntry> filteredEntries = filterCalculableEntries(stockDataset.getData(), from);
         return Stream.of(filteredEntries)
                 .flatMap(Collection::stream)

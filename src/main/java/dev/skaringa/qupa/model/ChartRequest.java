@@ -9,4 +9,6 @@ public class ChartRequest {
     String ticker;
     LocalDate from;
     LocalDate to;
+    ChartType chartType;
+    Integer period;
 }

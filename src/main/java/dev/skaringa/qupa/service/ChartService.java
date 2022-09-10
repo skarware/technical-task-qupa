@@ -31,13 +31,15 @@ public class ChartService {
         return chartFactory.toDailyVolumeChartModel(stockMarketDataService.getDataset(ticker, from, to));
     }
 
-    public Chart<ChartDataEntry> getSMAChart(ChartRequest request, int period) {
+    public Chart<ChartDataEntry> getSMAChart(ChartRequest request) {
         String ticker = request.getTicker();
         LocalDate from = request.getFrom();
         LocalDate to = request.getTo();
+        int period = request.getPeriod();
+
         LocalDate fromWithLossMarketCloseDaysOffset = from.minusDays(period * 2L);
         StockDataset dataset = stockMarketDataService.getDataset(ticker, fromWithLossMarketCloseDaysOffset, to);
         List<ChartDataEntry> movingAverages = simpleMovingAverageCalculator.calculate(dataset, from, period);
-        return new Chart<>(dataset.getSymbol(), from, to, ChartType.SMA, movingAverages);
+        return new Chart<>(dataset.getSymbol(), from, to, ChartType.SMA, period, movingAverages);
     }
 }

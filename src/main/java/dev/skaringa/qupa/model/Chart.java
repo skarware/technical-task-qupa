@@ -1,5 +1,6 @@
 package dev.skaringa.qupa.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.NonNull;
@@ -26,6 +27,10 @@ public class Chart<T extends ChartDataEntry> {
     @NonNull
     @ApiModelProperty(value = "Chart Type", example = "CANDLESTICK", required = true)
     ChartType type;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty(value = "SMA period in Days", example = "5")
+    Integer period;
 
     @NonNull
     @ApiModelProperty(value = "List of Chart Data Entries", required = true)

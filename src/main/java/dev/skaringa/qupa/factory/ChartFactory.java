@@ -31,6 +31,7 @@ public class ChartFactory {
                 source.getFrom(),
                 source.getTo(),
                 chartType,
+                null,
                 toChartDataEntryModels(source.getData(), chartType));
     }
 

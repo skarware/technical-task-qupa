@@ -18,20 +18,22 @@ class ChartControllerSpec extends SpecBaseIT {
     @Autowired
     private StockMarketDataClient stockMarketDataClient
 
-    def "GET /api/chart/candlestick/{ticker} returns candlestick chart"() {
+    def "GET /api/chart/{ticker} returns candlestick chart"() {
         given: "date range"
         def from = LocalDate.of(2012, 1, 1)
         def to = LocalDate.of(2022, 1, 1)
+        def chartType = ChartType.CANDLESTICK
 
         and: "stub returns stock market data"
         def toReturn = nasdaqDataset()
         1 * stockMarketDataClient.getDataset(TICKER, from, to) >> toReturn
 
-        when: "GET /api/chart/candlestick/{ticker} is called"
+        when: "GET /api/chart/{ticker} is called"
         def response = mockMvc.perform(
-                get("/api/chart/candlestick/{ticker}", TICKER)
+                get("/api/chart/{ticker}", TICKER)
                         .param("from", from.toString())
-                        .param("to", to.toString()))
+                        .param("to", to.toString())
+                        .param("chartType", chartType.name()))
 
         then: "correct result is returned"
         response
@@ -39,7 +41,8 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.ticker').value(toReturn.datasetCode.toString()))
                 .andExpect(jsonPath('$.from').value(toReturn.startDate.toString()))
                 .andExpect(jsonPath('$.to').value(toReturn.endDate.toString()))
-                .andExpect(jsonPath('$.type').value(ChartType.CANDLESTICK.name()))
+                .andExpect(jsonPath('$.type').value(chartType.name()))
+                .andExpect(jsonPath('$.period').doesNotExist())
                 .andExpect(jsonPath('$.data', hasSize(toReturn.data.size())))
                 .andExpect(jsonPath('$.data[0].date').value(toReturn.data[0].date.toString()))
                 .andExpect(jsonPath('$.data[0].open').value(toReturn.data[0].open.toString()))
@@ -48,20 +51,22 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.data[0].close').value(toReturn.data[0].close.toString()))
     }
 
-    def "GET /api/chart/volume/{ticker} returns volume chart"() {
+    def "GET /api/chart/{ticker} returns volume chart"() {
         given: "date range"
         def from = LocalDate.of(2012, 1, 1)
         def to = LocalDate.of(2022, 1, 1)
+        def chartType = ChartType.VOLUME
 
         and: "stub returns stock market data"
         def toReturn = nasdaqDataset()
         1 * stockMarketDataClient.getDataset(TICKER, from, to) >> toReturn
 
-        when: "GET /api/chart/volume/{ticker} is called"
+        when: "GET /api/chart/{ticker} is called"
         def response = mockMvc.perform(
-                get("/api/chart/volume/{ticker}", TICKER)
+                get("/api/chart/{ticker}", TICKER)
                         .param("from", from.toString())
-                        .param("to", to.toString()))
+                        .param("to", to.toString())
+                        .param("chartType", chartType.name()))
 
         then: "correct result is returned"
         response
@@ -69,7 +74,8 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.ticker').value(toReturn.datasetCode.toString()))
                 .andExpect(jsonPath('$.from').value(toReturn.startDate.toString()))
                 .andExpect(jsonPath('$.to').value(toReturn.endDate.toString()))
-                .andExpect(jsonPath('$.type').value(ChartType.VOLUME.name()))
+                .andExpect(jsonPath('$.type').value(chartType.name()))
+                .andExpect(jsonPath('$.period').doesNotExist())
                 .andExpect(jsonPath('$.data', hasSize(toReturn.data.size())))
                 .andExpect(jsonPath('$.data[0].date').value(toReturn.data[0].date.toString()))
                 .andExpect(jsonPath('$.data[0].value').value(toReturn.data[0].volume.toString()))
@@ -79,11 +85,12 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.data[2].value').value(toReturn.data[2].volume.toString()))
     }
 
-    def "GET /api/chart/sma/{ticker} returns SMA chart"() {
+    def "GET /api/chart/{ticker} returns SMA chart"() {
         given: "period and date range"
         def period = 1
         def from = LocalDate.of(2012, 1, 1)
         def to = LocalDate.of(2022, 1, 1)
+        def chartType = ChartType.SMA
 
         and: "stub returns stock market data"
         def entry1 = NasdaqDatasetDataEntryDtoProvider.dto([date: from.minusDays(1), close: 1])
@@ -93,11 +100,12 @@ class ChartControllerSpec extends SpecBaseIT {
         def fromWithLossMarketCloseDaysOffset = from.minusDays(period * 2L)
         1 * stockMarketDataClient.getDataset(TICKER, fromWithLossMarketCloseDaysOffset, to) >> toReturn
 
-        when: "GET /api/chart/sma/{ticker} is called"
+        when: "GET /api/chart/{ticker} is called"
         def response = mockMvc.perform(
-                get("/api/chart/sma/{ticker}", TICKER)
+                get("/api/chart/{ticker}", TICKER)
                         .param("from", from.toString())
                         .param("to", to.toString())
+                        .param("chartType", chartType.name())
                         .param("period", period.toString()))
 
         then: "correct result is returned"
@@ -106,7 +114,8 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.ticker').value(toReturn.datasetCode.toString()))
                 .andExpect(jsonPath('$.from').value(toReturn.startDate.toString()))
                 .andExpect(jsonPath('$.to').value(toReturn.endDate.toString()))
-                .andExpect(jsonPath('$.type').value(ChartType.SMA.name()))
+                .andExpect(jsonPath('$.type').value(chartType.name()))
+                .andExpect(jsonPath('$.period').value(period))
                 .andExpect(jsonPath('$.data', hasSize(2)))
                 .andExpect(jsonPath('$.data[0].date').value(toReturn.data[1].date.toString()))
                 .andExpect(jsonPath('$.data[0].value').value(1))
@@ -114,17 +123,19 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.data[1].value').value(2))
     }
 
-    def "GET /api/chart/sma/{ticker} returns 400 when request param of period of zero given"() {
+    def "GET /api/chart/{ticker} returns 400 when request of SMA chart and period of 0 given"() {
         given: "period and date range"
         def period = 0
         def from = LocalDate.of(2012, 1, 1)
         def to = LocalDate.of(2022, 1, 1)
+        def chartType = ChartType.SMA
 
-        when: "GET /api/chart/sma/{ticker} is called"
+        when: "GET /api/chart/{ticker} is called"
         def response = mockMvc.perform(
-                get("/api/chart/sma/{ticker}", TICKER)
+                get("/api/chart/{ticker}", TICKER)
                         .param("from", from.toString())
                         .param("to", to.toString())
+                        .param("chartType", chartType.name())
                         .param("period", period.toString()))
 
         then: "response status is 400"
@@ -137,17 +148,19 @@ class ChartControllerSpec extends SpecBaseIT {
         0 * stockMarketDataClient.getDataset(_)
     }
 
-    def "GET /api/chart/sma/{ticker} returns 400 when request param of period less than 0 given"() {
+    def "GET /api/chart/{ticker} returns 400 when request of SMA chart and period less than 0 given"() {
         given: "period and date range"
         def period = -1
         def from = LocalDate.of(2012, 1, 1)
         def to = LocalDate.of(2022, 1, 1)
+        def chartType = ChartType.SMA
 
-        when: "GET /api/chart/sma/{ticker} is called"
+        when: "GET /api/chart/{ticker} is called"
         def response = mockMvc.perform(
-                get("/api/chart/sma/{ticker}", TICKER)
+                get("/api/chart/{ticker}", TICKER)
                         .param("from", from.toString())
                         .param("to", to.toString())
+                        .param("chartType", chartType.name())
                         .param("period", period.toString()))
 
         then: "response status is 400"
@@ -160,17 +173,19 @@ class ChartControllerSpec extends SpecBaseIT {
         0 * stockMarketDataClient.getDataset(_)
     }
 
-    def "GET /api/chart/sma/{ticker} returns 400 when request param of period greater than 500 given"() {
+    def "GET /api/chart/{ticker} returns 400 when request of SMA chart and period greater than 500 given"() {
         given: "period and date range"
         def period = 501
         def from = LocalDate.of(2012, 1, 1)
         def to = LocalDate.of(2022, 1, 1)
+        def chartType = ChartType.SMA
 
-        when: "GET /api/chart/sma/{ticker} is called"
+        when: "GET /api/chart/{ticker} is called"
         def response = mockMvc.perform(
-                get("/api/chart/sma/{ticker}", TICKER)
+                get("/api/chart/{ticker}", TICKER)
                         .param("from", from.toString())
                         .param("to", to.toString())
+                        .param("chartType", chartType.name())
                         .param("period", period.toString()))
 
         then: "response status is 400"
@@ -183,13 +198,14 @@ class ChartControllerSpec extends SpecBaseIT {
         0 * stockMarketDataClient.getDataset(_)
     }
 
-    def "GET /api/chart/volume/{ticker} returns 400 when invalid request date range params given"() {
+    def "GET /api/chart/{ticker} returns 400 when invalid request date range params given"() {
         given: "invalid request"
-        def request = get("/api/chart/volume/{ticker}", TICKER)
+        def request = get("/api/chart/{ticker}", TICKER)
                 .param("from", "01-01-2012")
                 .param("to", "01-01-2022")
+                .param("chartType", ChartType.CANDLESTICK.name())
 
-        when: "GET /api/chart/volume/{ticker} is called"
+        when: "GET /api/chart/{ticker} is called"
         def response = mockMvc.perform(request)
 
         then: "response status is 400"
@@ -201,17 +217,61 @@ class ChartControllerSpec extends SpecBaseIT {
         0 * stockMarketDataClient.getDataset(_)
     }
 
-    def "GET /api/chart/volume/{ticker} returns 400 when invalid request without date range params given"() {
+    def "GET /api/chart/{ticker} returns 400 when invalid request without date range params given"() {
         given: "invalid request"
-        def request = get("/api/chart/volume/{ticker}", TICKER)
+        def request = get("/api/chart/{ticker}", TICKER)
+                .param("chartType", ChartType.CANDLESTICK.name())
 
-        when: "GET /api/chart/volume/{ticker} is called"
+        when: "GET /api/chart/{ticker} is called"
         def response = mockMvc.perform(request)
 
         then: "response status is 400"
         response
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath('$.[0].code').value(ErrorCode.UNEXPECTED.name()))
+
+        and: "stock market data client stub is not called"
+        0 * stockMarketDataClient.getDataset(_)
+    }
+
+    def "GET /api/chart/{ticker} returns 400 when invalid request without chart type param given"() {
+        given: "period and date range"
+        def from = LocalDate.of(2012, 1, 1)
+        def to = LocalDate.of(2022, 1, 1)
+//        def chartType = ChartType.SMA
+
+        when: "GET /api/chart/{ticker} is called"
+        def response = mockMvc.perform(
+                get("/api/chart/{ticker}", TICKER)
+                        .param("from", from.toString())
+                        .param("to", to.toString()))
+
+        then: "response status is 400"
+        response
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath('$.[0].code').value(ErrorCode.UNEXPECTED.name()))
+
+        and: "stock market data client stub is not called"
+        0 * stockMarketDataClient.getDataset(_)
+    }
+
+    def "GET /api/chart/{ticker} returns 400 when invalid request chart type param given"() {
+        given: "period and date range"
+        def from = LocalDate.of(2012, 1, 1)
+        def to = LocalDate.of(2022, 1, 1)
+        def chartType = "UNKNOWN_CHART_TYPE"
+
+        when: "GET /api/chart/{ticker} is called"
+        def response = mockMvc.perform(
+                get("/api/chart/{ticker}", TICKER)
+                        .param("from", from.toString())
+                        .param("to", to.toString())
+                        .param("chartType", chartType))
+
+        then: "response status is 400"
+        response
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath('$.[0].code').value(ErrorCode.INVALID_ARGUMENT.name()))
 
         and: "stock market data client stub is not called"
         0 * stockMarketDataClient.getDataset(_)

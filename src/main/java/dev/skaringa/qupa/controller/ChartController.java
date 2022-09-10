@@ -3,6 +3,7 @@ package dev.skaringa.qupa.controller;
 import dev.skaringa.qupa.model.Chart;
 import dev.skaringa.qupa.model.ChartDataEntry;
 import dev.skaringa.qupa.model.ChartRequest;
+import dev.skaringa.qupa.model.ChartType;
 import dev.skaringa.qupa.service.ChartService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -20,39 +21,31 @@ import java.time.LocalDate;
 public class ChartController {
     private final ChartService chartService;
 
-    @GetMapping("candlestick/{ticker}")
-    public Chart<ChartDataEntry> getCandlestickChart(
-            @ApiParam(value = "Ticker", example = "AAPL")
-            @PathVariable String ticker,
-            @ApiParam(value = "Date From", example = "2012-01-01")
-            @RequestParam(value = "from") LocalDate from,
-            @ApiParam(value = "Date To", example = "2022-01-01")
-            @RequestParam(value = "to") LocalDate to) {
-        return chartService.getCandlestickChart(new ChartRequest(ticker, from, to));
-    }
-
-    @GetMapping("volume/{ticker}")
-    public Chart<ChartDataEntry> getVolumeChart(
-            @ApiParam(value = "Ticker", example = "AAPL")
-            @PathVariable String ticker,
-            @ApiParam(value = "Date From", example = "2012-01-01")
-            @RequestParam(value = "from") LocalDate from,
-            @ApiParam(value = "Date To", example = "2022-01-01")
-            @RequestParam(value = "to") LocalDate to) {
-        return chartService.getVolumeChart(new ChartRequest(ticker, from, to));
-    }
-
-    @GetMapping("sma/{ticker}")
-    public Chart<ChartDataEntry> getSMAChart(
+    @GetMapping("{ticker}")
+    public Chart<ChartDataEntry> getChart(
             @ApiParam(value = "Ticker", example = "AAPL")
             @PathVariable String ticker,
             @ApiParam(value = "Date From", example = "2012-01-01")
             @RequestParam(value = "from") LocalDate from,
             @ApiParam(value = "Date To", example = "2022-01-01")
             @RequestParam(value = "to") LocalDate to,
+            @ApiParam(value = "ChartType", example = "VOLUME")
+            @RequestParam(value = "chartType") ChartType chartType,
             @ApiParam(value = "SMA period in Days", example = "5")
-            @RequestParam(value = "period") int period) {
-        Assert.isTrue(period > 0 && period <= 500, "SMA period should be greater than 0 and less than 500");
-        return chartService.getSMAChart(new ChartRequest(ticker, from, to), period);
+            @RequestParam(value = "period", required = false) Integer period) {
+        if (chartType == ChartType.SMA && period == null) {
+            throw new IllegalArgumentException("SMA chart requires 'period' value");
+        }
+        if (period != null) {
+            Assert.isTrue(period > 0 && period <= 500, "SMA period should be greater than 0 and less than 500");
+        }
+
+        ChartRequest request = new ChartRequest(ticker, from, to, chartType, period);
+
+        if (request.getChartType() == ChartType.CANDLESTICK) return chartService.getCandlestickChart(request);
+        if (request.getChartType() == ChartType.VOLUME) return chartService.getVolumeChart(request);
+        if (request.getChartType() == ChartType.SMA) return chartService.getSMAChart(request);
+
+        throw new IllegalArgumentException("Unexpected type of chart: " + chartType.getClass());
     }
 }

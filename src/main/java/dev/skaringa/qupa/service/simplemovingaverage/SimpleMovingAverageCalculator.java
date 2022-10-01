@@ -1,4 +1,4 @@
-package dev.skaringa.qupa.service;
+package dev.skaringa.qupa.service.simplemovingaverage;
 
 import dev.skaringa.qupa.exception.SystemException;
 import dev.skaringa.qupa.model.ChartDataEntry;

@@ -96,9 +96,8 @@ class ChartControllerSpec extends SpecBaseIT {
         def entry1 = NasdaqDatasetDataEntryDtoProvider.dto([date: from.minusDays(1), close: 1])
         def entry2 = NasdaqDatasetDataEntryDtoProvider.dto([date: from, close: 2])
         def entry3 = NasdaqDatasetDataEntryDtoProvider.dto([date: from.plusDays(1), close: 3])
-        def toReturn = nasdaqDataset([startDate: from, endDate: to, data: [entry1, entry2, entry3]])
-        def fromWithLossMarketCloseDaysOffset = from.minusDays(period * 2L)
-        1 * stockMarketDataClient.getDataset(TICKER, fromWithLossMarketCloseDaysOffset, to) >> toReturn
+        def toReturn = nasdaqDataset([datasetCode: TICKER, startDate: from, endDate: to, data: [entry1, entry2, entry3]])
+        1 * stockMarketDataClient.getDataset(TICKER, from.minusDays(period), to) >> toReturn
 
         when: "GET /api/chart/{ticker} is called"
         def response = mockMvc.perform(

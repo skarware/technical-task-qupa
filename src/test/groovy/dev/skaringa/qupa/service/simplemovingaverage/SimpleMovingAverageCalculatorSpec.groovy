@@ -1,10 +1,11 @@
-package dev.skaringa.qupa.service
+package dev.skaringa.qupa.service.simplemovingaverage
 
 import dev.skaringa.qupa.SpecBase
 import dev.skaringa.qupa.api.ErrorCode
 import dev.skaringa.qupa.exception.SystemException
 import dev.skaringa.qupa.provider.DailySingleValueChartDataEntryProvider
 import dev.skaringa.qupa.provider.StockDatasetDataEntryProvider
+import dev.skaringa.qupa.service.simplemovingaverage.SimpleMovingAverageCalculator
 
 import java.time.LocalDate
 
@@ -30,6 +31,28 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         result == []
     }
 
+    def "returns empty list when only period offset data entries given"() {
+        given: "from date and period"
+        def from = LocalDate.of(2022, 1, 1)
+        def period = 1
+
+        and: "stock dataset"
+        def entry1 = StockDatasetDataEntryProvider.model([date: from.minusDays(1), close: 1])
+        def entry2 = StockDatasetDataEntryProvider.model([date: from.minusDays(2), close: 2])
+        def entry3 = StockDatasetDataEntryProvider.model([date: from.minusDays(3), close: 3])
+        def stockDataset = stockDataset([
+                from: from,
+                to  : from,
+                data: [entry1, entry2, entry3],
+        ])
+
+        when: "calculate is called"
+        def result = calculator.calculate(stockDataset, from, period)
+
+        then: "result is correct"
+        result == []
+    }
+
     def "returns correct SMA result for period of 1-day"() {
         given: "from date and period"
         def from = LocalDate.of(2022, 1, 1)
@@ -42,7 +65,7 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         def entry4 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 4])
         def stockDataset = stockDataset([
                 from: from,
-                to  : from,
+                to  : from.plusDays(2),
                 data: [entry1, entry2, entry3, entry4],
         ])
 
@@ -70,7 +93,7 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         def entry5 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 5])
         def stockDataset = stockDataset([
                 from: from,
-                to  : from,
+                to  : from.plusDays(2),
                 data: [entry1, entry2, entry3, entry4, entry5],
         ])
 
@@ -99,7 +122,7 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         def entry6 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 6])
         def stockDataset = stockDataset([
                 from: from,
-                to  : from,
+                to  : from.plusDays(2),
                 data: [entry1, entry2, entry3, entry4, entry5, entry6],
         ])
 
@@ -129,7 +152,7 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         def entry7 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 30.25])
         def stockDataset = stockDataset([
                 from: from,
-                to  : from,
+                to  : from.plusDays(2),
                 data: [entry1, entry2, entry3, entry4, entry5, entry6, entry7],
         ])
 
@@ -159,7 +182,7 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         def entry7 = StockDatasetDataEntryProvider.model([date: from.plusDays(1), close: 30.25])
         def stockDataset = stockDataset([
                 from: from,
-                to  : from,
+                to  : from.plusDays(2),
                 data: [entry1, entry2, entry3, entry4, entry5, entry6, entry7],
         ])
 
@@ -187,7 +210,7 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         def entry6 = StockDatasetDataEntryProvider.model([date: from.plusDays(4), close: 6])
         def stockDataset = stockDataset([
                 from: from,
-                to  : from,
+                to  : from.plusDays(4),
                 data: [entry1, entry2, entry3, entry4, entry5, entry6],
         ])
 
@@ -215,7 +238,7 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         def entry5 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 5])
         def stockDataset = stockDataset([
                 from: from,
-                to  : from,
+                to  : from.plusDays(2),
                 data: [entry1, entry2, entry3, entry4, entry5],
         ])
 
@@ -241,7 +264,7 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         def entry5 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 5])
         def stockDataset = stockDataset([
                 from: from,
-                to  : from,
+                to  : from.plusDays(2),
                 data: [entry1, entry2, entry3, entry4, entry5],
         ])
 
@@ -266,7 +289,7 @@ class SimpleMovingAverageCalculatorSpec extends SpecBase {
         def entry5 = StockDatasetDataEntryProvider.model([date: from.plusDays(2), close: 5])
         def stockDataset = stockDataset([
                 from: from,
-                to  : from,
+                to  : from.plusDays(2),
                 data: [entry1, entry2, entry3, entry4, entry5],
         ])
 

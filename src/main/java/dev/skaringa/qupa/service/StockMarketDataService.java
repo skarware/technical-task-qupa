@@ -6,4 +6,6 @@ import java.time.LocalDate;
 
 public interface StockMarketDataService {
     StockDataset getDataset(String ticker, LocalDate from, LocalDate to);
+
+    StockDataset getDataset(String ticker, LocalDate date);
 }

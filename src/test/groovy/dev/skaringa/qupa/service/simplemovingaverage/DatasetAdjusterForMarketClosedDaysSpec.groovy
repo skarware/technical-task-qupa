@@ -210,4 +210,47 @@ class DatasetAdjusterForMarketClosedDaysSpec extends SpecBaseIT {
         def adjustedEntryModels = entryFactory.toModels([adjustedEntry1, adjustedEntry2, adjustedEntry3])
         result.data == [entry0, *adjustedEntryModels]
     }
+
+    def "adjusts dataset when data is missing two offset entries out of three and their dates are not consecutive"() {
+        given:
+        def period = 3
+        def from = LocalDate.of(2012, 1, 1)
+        def to = LocalDate.of(2012, 1, 3)
+        def fromWithOffset = from.minusDays(period)
+        def entry0 = StockDatasetDataEntryProvider.model([date: from])
+        def entry1 = StockDatasetDataEntryProvider.model([date: from.minusDays(2)])
+        def dataset = stockDataset([symbol: TICKER, from: fromWithOffset, to: to, data: [entry0, entry1]])
+
+        and: "stub returns empty stock market data on first call"
+        def adjustedDateToProbe1 = fromWithOffset.minusDays(1)
+        def adjustedDataset1 = nasdaqDataset([datasetCode: TICKER, startDate: adjustedDateToProbe1, endDate: adjustedDateToProbe1, data: []])
+        1 * stockMarketDataClient.getDataset(TICKER, adjustedDateToProbe1, adjustedDateToProbe1) >> adjustedDataset1
+
+        and: "stub returns stock market data on second call"
+        def adjustedDateToProbe2 = fromWithOffset.minusDays(2)
+        def adjustedEntry2 = NasdaqDatasetDataEntryDtoProvider.dto([date: adjustedDateToProbe2])
+        def adjustedDataset2 = nasdaqDataset([datasetCode: TICKER, startDate: adjustedDateToProbe2, endDate: adjustedDateToProbe2, data: [adjustedEntry2]])
+        1 * stockMarketDataClient.getDataset(TICKER, adjustedDateToProbe2, adjustedDateToProbe2) >> adjustedDataset2
+
+        and: "stub returns empty stock market data on third call"
+        def adjustedDateToProbe3 = fromWithOffset.minusDays(3)
+        def adjustedDataset3 = nasdaqDataset([datasetCode: TICKER, startDate: adjustedDateToProbe3, endDate: adjustedDateToProbe3, data: []])
+        1 * stockMarketDataClient.getDataset(TICKER, adjustedDateToProbe3, adjustedDateToProbe3) >> adjustedDataset3
+
+        and: "stub returns stock market data on fourth call"
+        def adjustedDateToProbe4 = fromWithOffset.minusDays(4)
+        def adjustedEntry4 = NasdaqDatasetDataEntryDtoProvider.dto([date: adjustedDateToProbe4])
+        def adjustedDataset4 = nasdaqDataset([datasetCode: TICKER, startDate: adjustedDateToProbe4, endDate: adjustedDateToProbe4, data: [adjustedEntry4]])
+        1 * stockMarketDataClient.getDataset(TICKER, adjustedDateToProbe4, adjustedDateToProbe4) >> adjustedDataset4
+
+        when:
+        def result = datasetAdjusterForMarketClosedDays.adjust(dataset, from, period)
+
+        then:
+        result.symbol == TICKER
+        result.from == adjustedDateToProbe4
+        result.to == to
+        def adjustedEntryModels = entryFactory.toModels([adjustedEntry2, adjustedEntry4])
+        result.data == [entry0, entry1, *adjustedEntryModels]
+    }
 }

@@ -116,10 +116,10 @@ class ChartControllerSpec extends SpecBaseIT {
                 .andExpect(jsonPath('$.type').value(chartType.name()))
                 .andExpect(jsonPath('$.period').value(period))
                 .andExpect(jsonPath('$.data', hasSize(2)))
-                .andExpect(jsonPath('$.data[0].date').value(toReturn.data[1].date.toString()))
-                .andExpect(jsonPath('$.data[0].value').value(1))
-                .andExpect(jsonPath('$.data[1].date').value(toReturn.data[2].date.toString()))
-                .andExpect(jsonPath('$.data[1].value').value(2))
+                .andExpect(jsonPath('$.data[0].date').value(toReturn.data[2].date.toString()))
+                .andExpect(jsonPath('$.data[0].value').value(2))
+                .andExpect(jsonPath('$.data[1].date').value(toReturn.data[1].date.toString()))
+                .andExpect(jsonPath('$.data[1].value').value(1))
     }
 
     def "GET /api/chart/{ticker} returns 400 when request of SMA chart and period of 0 given"() {

@@ -3,6 +3,7 @@ package dev.skaringa.qupa.service.simplemovingaverage;
 import dev.skaringa.qupa.model.StockDataset;
 import dev.skaringa.qupa.service.StockMarketDataService;
 import dev.skaringa.qupa.util.StockDatasetMerger;
+import dev.skaringa.qupa.util.StockDatasetSorter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +28,7 @@ public class DatasetAdjusterForMarketClosedDays {
             }
         }
 
-        return dataset;
+        return StockDatasetSorter.sortDataEntriesByDateReverse(dataset);
     }
 
     private long countOffsetDays(StockDataset dataset, LocalDate date) {

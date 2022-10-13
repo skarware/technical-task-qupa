@@ -61,8 +61,8 @@ class SimpleMovingAverageServiceSpec extends SpecBaseIT {
         result.type == ChartType.SMA
         result.period == period
         result.data == [
-                DailySingleValueChartDataEntryProvider.model([date: from, value: 1]),
                 DailySingleValueChartDataEntryProvider.model([date: from.plusDays(1), value: 2]),
+                DailySingleValueChartDataEntryProvider.model([date: from, value: 1]),
         ]
     }
 
@@ -126,8 +126,8 @@ class SimpleMovingAverageServiceSpec extends SpecBaseIT {
         result.type == ChartType.SMA
         result.period == period
         result.data == [
-                DailySingleValueChartDataEntryProvider.model([date: from, value: 2]),
                 DailySingleValueChartDataEntryProvider.model([date: from.plusDays(1), value: 1.5]),
+                DailySingleValueChartDataEntryProvider.model([date: from, value: 2]),
         ]
     }
 

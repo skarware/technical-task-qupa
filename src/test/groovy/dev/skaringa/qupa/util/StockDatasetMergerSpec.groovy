@@ -1,7 +1,8 @@
-package dev.skaringa.qupa.service.util
+package dev.skaringa.qupa.util
 
 import dev.skaringa.qupa.SpecBase
 import dev.skaringa.qupa.provider.StockDatasetDataEntryProvider
+import dev.skaringa.qupa.util.StockDatasetMerger
 
 import java.time.LocalDate
 

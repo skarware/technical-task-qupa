@@ -2,7 +2,7 @@ package dev.skaringa.qupa.service.simplemovingaverage;
 
 import dev.skaringa.qupa.model.StockDataset;
 import dev.skaringa.qupa.service.StockMarketDataService;
-import dev.skaringa.qupa.service.util.StockDatasetMerger;
+import dev.skaringa.qupa.util.StockDatasetMerger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

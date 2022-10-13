@@ -1,4 +1,4 @@
-package dev.skaringa.qupa.service.util;
+package dev.skaringa.qupa.util;
 
 import dev.skaringa.qupa.model.StockDataset;
 import lombok.experimental.UtilityClass;

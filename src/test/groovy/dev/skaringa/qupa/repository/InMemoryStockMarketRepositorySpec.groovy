@@ -97,8 +97,8 @@ class InMemoryStockMarketRepositorySpec extends SpecBase {
     def "save merges and overrides dataset with already stored"() {
         given: "dataset is stored"
         def entry1 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 1)])
-        def entry2 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 2)])
-        def entry3 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 3)])
+        def entry2 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 2), volume: 1L])
+        def entry3 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 3), volume: 1L])
         def dataset = stockDataset([
                 from: LocalDate.of(2022, 1, 1),
                 to  : LocalDate.of(2022, 1, 3),
@@ -106,8 +106,8 @@ class InMemoryStockMarketRepositorySpec extends SpecBase {
         inMemoryStockMarketDataRepository.save(dataset)
 
         and: "dataset update"
-        def entry4 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 2)])
-        def entry5 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 3)])
+        def entry4 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 2), volume: 100L])
+        def entry5 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 3), volume: 100L])
         def entry6 = StockDatasetDataEntryProvider.model([date: LocalDate.of(2022, 1, 4)])
         def newDataset = stockDataset([
                 from: LocalDate.of(2022, 1, 2),

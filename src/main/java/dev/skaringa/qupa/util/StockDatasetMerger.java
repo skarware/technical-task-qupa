@@ -6,7 +6,9 @@ import lombok.experimental.UtilityClass;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,7 +22,11 @@ public class StockDatasetMerger {
         List<StockDataset.DataEntry> mergedData = Stream.of(datasets)
                 .map(StockDataset::getData)
                 .flatMap(Collection::stream)
-                .distinct()
+                .collect(
+                        Collectors.toMap(
+                                StockDataset.DataEntry::getDate, Function.identity(), (left, right) -> right))
+                .values().stream()
+                .sorted(Comparator.comparing(StockDataset.DataEntry::getDate))
                 .collect(Collectors.toUnmodifiableList());
 
         return new StockDataset(symbol, from, to, mergedData);
